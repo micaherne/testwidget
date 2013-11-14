@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns       = "http://www.w3.org/ns/widgets"
+        id          = "http://micaherne.co.uk/testwidget"
+        version     = "2.0 Beta"
+        height      = "600"
+        width       = "400"
+        viewmodes   = "fullscreen">
+ 
+  <name short="Test Widget">
+    A test widget
+  </name>
+
+  <feature name="http://micaherne.co.uk/service/randomgame" required = "false">
+
+  </feature>
+
+  <preference name     = "somesetting"
+              value    = "testing"
+              readonly = "false" />
+
+  <description>
+    A sample widget to try packaging.
+  </description>
+
+  <author href  = "http://micaherne.co.uk"
+          email = "micaherne@blueyonder.co.uk">Michael Aherne</author>
+
+  <icon src="icon.svg"/>
+  <content src="index.html"/>
+
+  <license>
+Example license (based on MIT License)
+Copyright (c) 2013 Michael Aherne
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+INSULT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  </license>
+</widget>

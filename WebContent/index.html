@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Test widget</title>
+<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="js/chess.js/chess.min.js"></script>
+<script type="text/javascript" src="js/chessboardjs/js/chessboard-0.3.0.min.js"></script>
+<script type="text/javascript">
+
+window.mpegasus = {
+
+	feature: {
+		'http://micaherne.co.uk/service/randomgame': 'http://localhost:8080/testwidget/service/randomgame'
+	},
+	
+	getFeatureApi: function(uri) {
+		if (uri in window.mpegasus.feature) {
+			return window.mpegasus.feature[uri];
+		} else {
+			throw new Exception("Feature not available: " + uri);
+		}
+	}
+}
+
+function getFeatureApi(uri) {
+	if (typeof window.mpegasus !== 'undefined') {
+		return window.mpegasus.getFeatureApi(uri);
+	} else {
+		switch(uri) {
+			case 'http://micaherne.co.uk/service/randomgame':
+				return 'service/randomgame';
+		}
+	}
+}
+
+$(document).ready(function() {
+	var chess = new Chess();
+	var gameMoves = [];
+	var currentMove = 0;
+	var isMoving = false; // to avoid over-clicking
+	var board2 = new ChessBoard('board2', {
+		  draggable: true,
+		  dropOffBoard: 'trash',
+		  pieceTheme: 'js/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
+		  onChange: function(oldPosition, newPosition) {
+			  // console.log(ChessBoard.objToFen(newPosition));
+		  }
+		});
+	url = getFeatureApi('http://micaherne.co.uk/service/randomgame');
+	console.log(url);
+	$.ajax({
+		url: url,
+		success: function(data) {
+			if(chess.load_pgn(data)) {
+				for(i in chess.header()) {
+					$('#event').text($('#event').text() + chess.header()[i]);
+				}
+				gameMoves = chess.history({ verbose: true });
+			}
+		}
+	});
+	//board2.reset();
+	board2.start();
+	$('#nextMove').on('click', function() {
+		if (isMoving) {
+			return;
+		}
+		isMoving = true;
+		if (gameMoves.length > currentMove) {
+			var move = gameMoves[currentMove++];
+			board2.move(move.from + '-' + move.to);
+		}
+		isMoving = false;
+	});
+	$('#reset').on('click', function() {
+		board2.start();
+		currentMove = 0;
+	});
+});
+</script>
+<link rel="stylesheet" type="text/css" href="js/chessboardjs/css/chessboard-0.3.0.min.css"></link>
+</head>
+<body>
+<div id="board2" style="width: 400px"></div>
+<input type="button" id="nextMove" value="Next" />
+<input type="button" id="reset" value="Reset" />
+<p id="event"></p>
+
+</body>
+</html>
