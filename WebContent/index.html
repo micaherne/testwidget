@@ -32,6 +32,14 @@ window.mpegasus = {
 	}
 }
 
+/*
+ * This is just the code for the app itself - the only important points are:
+ *
+ * * the use of the getFeatureApi function from strath-widget.js to get an 
+ *   endpoint URL based on a feature URI (see config.xml)
+ * * there are NO global variables so this app won't interfere with any others
+ */
+
 $(document).ready(function() {
 	var chess = new Chess();
 	var gameMoves = [];
