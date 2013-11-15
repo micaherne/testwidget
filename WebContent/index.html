@@ -6,8 +6,17 @@
 <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="js/chess.js/chess.min.js"></script>
 <script type="text/javascript" src="js/chessboardjs/js/chessboard-0.3.0.min.js"></script>
+<script type="text/javascript" src="js/strath-widget.js"></script>
 <script type="text/javascript">
 
+/*
+ * In a real application, this would be supplied by the mPegasus framework
+ * and would be used by the getFeatureApi() function in js/strath-widget.js
+ * in preference to the local service if it exists.
+ 
+ * It would probably also check to see if it's running in Wookie and use the
+ * proxify() method to give a same-origin URL
+ */
 window.mpegasus = {
 
 	feature: {
@@ -23,17 +32,6 @@ window.mpegasus = {
 	}
 }
 
-function getFeatureApi(uri) {
-	if (typeof window.mpegasus !== 'undefined') {
-		return window.mpegasus.getFeatureApi(uri);
-	} else {
-		switch(uri) {
-			case 'http://micaherne.co.uk/service/randomgame':
-				return 'service/randomgame';
-		}
-	}
-}
-
 $(document).ready(function() {
 	var chess = new Chess();
 	var gameMoves = [];
@@ -43,12 +41,9 @@ $(document).ready(function() {
 		  draggable: true,
 		  dropOffBoard: 'trash',
 		  pieceTheme: 'js/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
-		  onChange: function(oldPosition, newPosition) {
-			  // console.log(ChessBoard.objToFen(newPosition));
-		  }
 		});
-	url = getFeatureApi('http://micaherne.co.uk/service/randomgame');
-	console.log(url);
+	url = getFeatureApi('http://micaherne.co.uk/service/randomgame', 'service/randomgame');
+
 	$.ajax({
 		url: url,
 		success: function(data) {
@@ -60,7 +55,8 @@ $(document).ready(function() {
 			}
 		}
 	});
-	//board2.reset();
+	var game = new Chess();
+	game.reset();
 	board2.start();
 	$('#nextMove').on('click', function() {
 		if (isMoving) {
@@ -69,13 +65,46 @@ $(document).ready(function() {
 		isMoving = true;
 		if (gameMoves.length > currentMove) {
 			var move = gameMoves[currentMove++];
-			board2.move(move.from + '-' + move.to);
+
+			game.move(move);
+			/* We use the chess.js object to control the moves
+			 * rather than the chessboard.js move function as
+			 * it will deal with castling, e.p. and promotion 
+			 * properly (probably)
+			*/
+			// board2.move(move.from + '-' + move.to);
+			board2.position(game.fen());
+			$('#lastMove').text(move.san);
+		}
+		isMoving = false;
+	});
+	$('#previousMove').on('click', function() {
+		if (isMoving) {
+			return;
+		}
+		isMoving = true;
+		if (gameMoves.length > currentMove) {
+			game.undo();
+			currentMove--;
+			/* We use the chess.js object to control the moves
+			 * rather than the chessboard.js move function as
+			 * it will deal with castling, e.p. and promotion 
+			 * properly (probably)
+			*/
+			// board2.move(move.from + '-' + move.to);
+			board2.position(game.fen());
+			// We reset the move display to the one before the one 
+			// we just took back.
+			var move = gameMoves[currentMove-1];
+			$('#lastMove').text(move.san);
 		}
 		isMoving = false;
 	});
 	$('#reset').on('click', function() {
+		game.reset();
 		board2.start();
 		currentMove = 0;
+		$('#lastMove').text('');
 	});
 });
 </script>
@@ -83,8 +112,10 @@ $(document).ready(function() {
 </head>
 <body>
 <div id="board2" style="width: 400px"></div>
+<input type="button" id="previousMove" value="Previous" />
 <input type="button" id="nextMove" value="Next" />
 <input type="button" id="reset" value="Reset" />
+<span id="lastMove"></span>
 <p id="event"></p>
 
 </body>
